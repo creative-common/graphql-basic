@@ -1,34 +1,26 @@
-var express = require('express')
-var {graphqlHTTP} = require('express-graphql')
-var { buildSchema } = require('graphql')
+const { ApolloServer } = require('apollo-server')
+const typeDefs = require('./schemas/schema');
 
-
-var schema = buildSchema(`
-    type Query{
-        hello: String,
-        hello2: String
+let links = [{
+    id: 'link-0',
+    url: 'sanjeet.me',
+    description: 'Data from GraphQL'
+  }]
+  
+const resolvers = {
+    Query: {
+        info: () => {
+            return 'This is first api result using GraphQL'
+        },
+        feed: () => links,
     }
-`);
+}
 
-
-var root = {
-    hello: () => {
-        return 'Hello Graphql World!'
-    },
-    hello2: () => {
-        return 'Hello Sanjeet!'
-    },
-};
-
-var app = express();
-
-app.use('/graphql', graphqlHTTP({
-    schema:schema,
-    rootValue:root,
-    graphiql: true,
-}));
-
-app.listen(80, ()=>{
-    console.log('Graphql app is running on port 80')
+const server = new ApolloServer({
+    typeDefs: typeDefs,
+    resolvers
 })
 
+server.listen(8080).then(({url}) => {
+    console.log(`Server is running on ${url}`)
+})
